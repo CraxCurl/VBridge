@@ -37,8 +37,6 @@ public class AudioCaptureService extends Service {
     public static final String EXTRA_TARGET_IP = "extra_target_ip";
     public static final String EXTRA_TARGET_PORT = "extra_target_port";
     public static final String EXTRA_SESSION_ID = "extra_session_id";
-    public static final String EXTRA_USE_MIC = "extra_use_mic";
-    public static final String EXTRA_MUTE_SPEAKER = "extra_mute_speaker";
 
     private final IBinder binder = new LocalBinder();
 
@@ -58,10 +56,6 @@ public class AudioCaptureService extends Service {
     private AudioStreamer audioStreamer;
     private Thread captureThread;
 
-    private AudioManager audioManager;
-    private int originalMusicVolume = -1;
-    private boolean isSpeakerMutedByService = false;
-
     private final AtomicBoolean isCapturing = new AtomicBoolean(false);
 
     private static final int SAMPLE_RATE = 48000;
@@ -80,7 +74,6 @@ public class AudioCaptureService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         createNotificationChannel();
     }
 
@@ -93,12 +86,10 @@ public class AudioCaptureService extends Service {
             String ip = intent.getStringExtra(EXTRA_TARGET_IP);
             int port = intent.getIntExtra(EXTRA_TARGET_PORT, 58001);
             int sessionId = intent.getIntExtra(EXTRA_SESSION_ID, 1);
-            boolean useMic = intent.getBooleanExtra(EXTRA_USE_MIC, false);
-            boolean muteSpeaker = intent.getBooleanExtra(EXTRA_MUTE_SPEAKER, true);
             Intent projectionData = intent.getParcelableExtra(EXTRA_RESULT_DATA);
 
             startForegroundServiceNotification();
-            startAudioCapture(ip, port, sessionId, useMic, muteSpeaker, projectionData);
+            startAudioCapture(ip, port, sessionId, projectionData);
         } else if (ACTION_STOP.equals(action)) {
             stopAudioCapture();
             stopForeground(true);
@@ -146,7 +137,7 @@ public class AudioCaptureService extends Service {
         }
     }
 
-    private void startAudioCapture(String targetIp, int targetPort, int sessionId, boolean useMic, boolean muteSpeaker, Intent projectionData) {
+    private void startAudioCapture(String targetIp, int targetPort, int sessionId, Intent projectionData) {
         if (isCapturing.get()) return;
 
         try {
@@ -156,7 +147,7 @@ public class AudioCaptureService extends Service {
             int minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
             int bufferSizeInBytes = Math.max(minBufferSize, 3840 * 4); // buffer for ~80ms
 
-            if (!useMic && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && projectionData != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && projectionData != null) {
                 // System Audio Capture using AudioPlaybackCaptureConfiguration
                 MediaProjectionManager projectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
                 mediaProjection = projectionManager.getMediaProjection(MainActivity.RESULT_OK, projectionData);
@@ -197,7 +188,7 @@ public class AudioCaptureService extends Service {
 
                 Log.i(TAG, "Initialized AudioPlaybackCapture AudioRecord for all application usages");
             } else {
-                // Fallback to Microphone Capture
+                // Fallback AudioRecord
                 audioRecord = new AudioRecord(
                         MediaRecorder.AudioSource.MIC,
                         SAMPLE_RATE,
@@ -205,7 +196,7 @@ public class AudioCaptureService extends Service {
                         AUDIO_FORMAT,
                         bufferSizeInBytes
                 );
-                Log.i(TAG, "Initialized Microphone AudioRecord");
+                Log.i(TAG, "Initialized AudioRecord fallback");
             }
 
             if (audioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
@@ -214,8 +205,7 @@ public class AudioCaptureService extends Service {
                 return;
             }
 
-            // Do not force STREAM_MUSIC to 0 as that halts AudioPlaybackCapture on Android
-            Log.i(TAG, "Starting audio capture with full system audio stream");
+            Log.i(TAG, "Starting system audio capture at 48000Hz stereo");
 
             audioRecord.startRecording();
             isCapturing.set(true);
@@ -261,17 +251,6 @@ public class AudioCaptureService extends Service {
 
     public synchronized void stopAudioCapture() {
         isCapturing.set(false);
-
-        // Restore original phone speaker volume
-        if (isSpeakerMutedByService && audioManager != null && originalMusicVolume >= 0) {
-            try {
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVolume, 0);
-                Log.i(TAG, "Restored phone speaker volume to " + originalMusicVolume);
-            } catch (Exception ignored) {
-            }
-            isSpeakerMutedByService = false;
-            originalMusicVolume = -1;
-        }
 
         if (captureThread != null) {
             captureThread.interrupt();

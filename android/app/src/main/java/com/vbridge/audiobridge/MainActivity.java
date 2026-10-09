@@ -19,8 +19,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
     private static final String PREF_LAST_PORT = "last_server_port";
     private static final String PREF_LAST_CODE = "last_pairing_code";
     private static final String PREF_AUTO_CONNECT = "auto_connect_enabled";
-    private static final String PREF_LAST_DEVICE_NAME = "last_device_name";
 
     // UI elements
     private CardView cardRecentDevice;
@@ -60,10 +57,6 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
     private Button btnConnect;
     private TextView tvConnectionStatus;
     private TextView tvLatency;
-    private RadioGroup rgAudioSource;
-    private RadioButton rbInternalAudio;
-    private RadioButton rbMicAudio;
-    private CheckBox chkMutePhoneSpeaker;
     private Button btnToggleStream;
     private ProgressBar pbAudioLevel;
 
@@ -152,10 +145,6 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
         btnConnect = findViewById(R.id.btnConnect);
         tvConnectionStatus = findViewById(R.id.tvConnectionStatus);
         tvLatency = findViewById(R.id.tvLatency);
-        rgAudioSource = findViewById(R.id.rgAudioSource);
-        rbInternalAudio = findViewById(R.id.rbInternalAudio);
-        rbMicAudio = findViewById(R.id.rbMicAudio);
-        chkMutePhoneSpeaker = findViewById(R.id.chkMutePhoneSpeaker);
         btnToggleStream = findViewById(R.id.btnToggleStream);
         pbAudioLevel = findViewById(R.id.pbAudioLevel);
 
@@ -203,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
                         Toast.makeText(this, "⚡ Auto-connecting to " + savedIp + "...", Toast.LENGTH_SHORT).show();
                         toggleConnection();
                     }
-                }, 600);
+                }, 500);
             }
         }
     }
@@ -368,9 +357,7 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
             return;
         }
 
-        boolean useMic = rbMicAudio.isChecked();
-
-        if (!useMic && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             projectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
             if (projectionManager != null) {
                 projectionLauncher.launch(projectionManager.createScreenCaptureIntent());
@@ -382,16 +369,12 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
 
     private void launchAudioService(Intent projectionData) {
         String ip = etServerIp.getText().toString().trim();
-        boolean useMic = rbMicAudio.isChecked();
-        boolean muteSpeaker = chkMutePhoneSpeaker != null && chkMutePhoneSpeaker.isChecked();
 
         Intent serviceIntent = new Intent(this, AudioCaptureService.class);
         serviceIntent.setAction(AudioCaptureService.ACTION_START);
         serviceIntent.putExtra(AudioCaptureService.EXTRA_TARGET_IP, ip);
         serviceIntent.putExtra(AudioCaptureService.EXTRA_TARGET_PORT, currentUdpPort);
         serviceIntent.putExtra(AudioCaptureService.EXTRA_SESSION_ID, currentSessionId);
-        serviceIntent.putExtra(AudioCaptureService.EXTRA_USE_MIC, useMic);
-        serviceIntent.putExtra(AudioCaptureService.EXTRA_MUTE_SPEAKER, muteSpeaker);
 
         if (projectionData != null) {
             serviceIntent.putExtra(AudioCaptureService.EXTRA_RESULT_DATA, projectionData);
@@ -424,7 +407,12 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
             btnConnect.setText("Disconnect");
             btnConnect.setBackgroundColor(ContextCompat.getColor(this, R.color.google_red));
             btnConnect.setTextColor(ContextCompat.getColor(this, R.color.google_red_on));
-            tvConnectionStatus.setText("🟢 Connected");
+            
+            if (isStreaming) {
+                tvConnectionStatus.setText("🟢 Streaming Active");
+            } else {
+                tvConnectionStatus.setText("🟢 Connected");
+            }
             tvConnectionStatus.setTextColor(ContextCompat.getColor(this, R.color.google_green));
             etServerIp.setEnabled(false);
             etServerPort.setEnabled(false);
@@ -433,14 +421,15 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
             btnConnect.setText("Connect to Laptop");
             btnConnect.setBackgroundColor(ContextCompat.getColor(this, R.color.primary));
             btnConnect.setTextColor(ContextCompat.getColor(this, R.color.on_primary));
+            
             if (isStreaming) {
-                tvConnectionStatus.setText("🟡 Streaming (Reconnecting Link...)");
-                tvConnectionStatus.setTextColor(ContextCompat.getColor(this, R.color.primary));
+                tvConnectionStatus.setText("🟢 Streaming Active");
+                tvConnectionStatus.setTextColor(ContextCompat.getColor(this, R.color.google_green));
             } else {
                 tvConnectionStatus.setText("🔴 Offline");
                 tvConnectionStatus.setTextColor(ContextCompat.getColor(this, R.color.google_red));
+                tvLatency.setText("-- ms");
             }
-            tvLatency.setText("-- ms");
             etServerIp.setEnabled(true);
             etServerPort.setEnabled(true);
             etPairingCode.setEnabled(true);
@@ -453,11 +442,17 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
             btnToggleStream.setText("⏹ Stop Audio Streaming");
             btnToggleStream.setBackgroundColor(ContextCompat.getColor(this, R.color.google_red));
             btnToggleStream.setTextColor(ContextCompat.getColor(this, R.color.google_red_on));
+            tvConnectionStatus.setText("🟢 Streaming Active");
+            tvConnectionStatus.setTextColor(ContextCompat.getColor(this, R.color.google_green));
         } else {
             btnToggleStream.setText("▶ Start Audio Streaming");
             btnToggleStream.setBackgroundColor(ContextCompat.getColor(this, R.color.google_green));
             btnToggleStream.setTextColor(ContextCompat.getColor(this, R.color.google_green_on));
             pbAudioLevel.setProgress(0);
+            if (isConnectedToLaptop) {
+                tvConnectionStatus.setText("🟢 Connected");
+                tvConnectionStatus.setTextColor(ContextCompat.getColor(this, R.color.google_green));
+            }
         }
     }
 
@@ -489,6 +484,9 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
         runOnUiThread(() -> {
             if (tvLatency != null) {
                 tvLatency.setText(rttMs + " ms");
+            }
+            if (!isConnectedToLaptop) {
+                setConnectionUiState(true);
             }
         });
     }

@@ -396,45 +396,12 @@
                     android:letterSpacing="0.08"
                     android:textStyle="bold" />
 
-                <!-- Radio Buttons for Source -->
-                <RadioGroup
-                    android:id="@+id/rgAudioSource"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="vertical">
-
-                    <RadioButton
-                        android:id="@+id/rbInternalAudio"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:buttonTint="@color/primary"
-                        android:text="Internal System &amp; Media Audio (Android 10+)"
-                        android:textColor="@color/text_high"
-                        android:textSize="13sp" />
-
-                    <RadioButton
-                        android:id="@+id/rbMicAudio"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:buttonTint="@color/primary"
-                        android:text="Microphone / Ambient Audio"
-                        android:textColor="@color/text_high"
-                        android:textSize="13sp" />
-                </RadioGroup>
-
-                <!-- Mute Phone Speaker Checkbox -->
-                <CheckBox
-                    android:id="@+id/chkMutePhoneSpeaker"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:checked="true"
-                    android:buttonTint="@color/primary"
-                    android:text="🔇 Mute Phone Speaker (Sound on Laptop only)"
-                    android:textColor="@color/text_high"
+                    android:layout_marginTop="4dp"
+                    android:text="Internal System &amp; Media Audio Streamer"
+                    android:textColor="@color/text_medium"
                     android:textSize="13sp" />
 
                 <!-- Streaming Action Button (Material You Pill) -->
@@ -442,7 +409,7 @@
                     android:id="@+id/btnToggleStream"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="16dp"
                     android:backgroundTint="@color/google_green"
                     android:text="▶ Start Audio Streaming"
                     android:textAllCaps="false"
