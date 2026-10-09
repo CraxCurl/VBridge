@@ -11,9 +11,13 @@ import os
 try:
     from audio_player import AudioPlayer
     from audio_receiver import AudioReceiver
+    from startup_manager import StartupManager
+    from config_manager import ConfigManager
 except ImportError:
     from windows.audio_player import AudioPlayer
     from windows.audio_receiver import AudioReceiver
+    from windows.startup_manager import StartupManager
+    from windows.config_manager import ConfigManager
 
 # Configure logging
 logging.basicConfig(
@@ -52,14 +56,23 @@ class VBridgeApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        # Persistent configuration
+        self.config = ConfigManager()
+
         self.title("VBridge — Google Material Audio Relay")
-        self.geometry("800x840")
-        self.minsize(720, 760)
+        self.geometry("800x860")
+        self.minsize(720, 780)
         self.configure(fg_color=GOOGLE_COLORS["bg_main"])
 
         # Audio engine and Receiver instances
+        saved_vol = self.config.get("volume", 1.0)
         self.audio_player = AudioPlayer(sample_rate=48000, channels=2, buffer_size=480)
+        self.audio_player.set_volume(saved_vol)
+        self.audio_player.keep_alive_anti_sleep = self.config.get("keep_anti_sleep", True)
+
         self.audio_receiver = AudioReceiver(self.audio_player)
+        saved_code = self.config.get("pairing_code", "1234")
+        self.audio_receiver.set_pairing_code(saved_code)
 
         # Connect receiver callbacks
         self.audio_receiver.on_client_connected = self._on_client_connected
@@ -78,7 +91,7 @@ class VBridgeApp(ctk.CTk):
 
         # Start periodic UI refresh timer (audio meter, latency, device list)
         self.after(40, self._update_metrics_loop)
-        self.after(2500, self._periodic_device_check)
+        self.after(3000, self._periodic_device_check)
 
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
@@ -280,7 +293,7 @@ class VBridgeApp(ctk.CTk):
 
         # Anti-sleep & active endpoint info row
         opt_row = ctk.CTkFrame(card, fg_color="transparent")
-        opt_row.pack(fill="x", padx=18, pady=(0, 12))
+        opt_row.pack(fill="x", padx=18, pady=(0, 8))
 
         self.lbl_device_info = ctk.CTkLabel(
             opt_row,
@@ -292,15 +305,38 @@ class VBridgeApp(ctk.CTk):
 
         self.chk_anti_sleep = ctk.CTkCheckBox(
             opt_row,
-            text="🔒 Keep Bluetooth Awake (Prevent Standby Sleep)",
+            text="🔒 Keep Bluetooth Awake",
             command=self._on_anti_sleep_toggled,
             font=ctk.CTkFont(family="Segoe UI", size=11),
             text_color=GOOGLE_COLORS["text_high"],
             fg_color=GOOGLE_COLORS["primary"],
             border_color=GOOGLE_COLORS["outline"]
         )
-        self.chk_anti_sleep.select()
+        if self.config.get("keep_anti_sleep", True):
+            self.chk_anti_sleep.select()
+        else:
+            self.chk_anti_sleep.deselect()
         self.chk_anti_sleep.pack(side="right")
+
+        # Windows Startup and Background row
+        sys_row = ctk.CTkFrame(card, fg_color="transparent")
+        sys_row.pack(fill="x", padx=18, pady=(0, 12))
+
+        self.chk_startup = ctk.CTkCheckBox(
+            sys_row,
+            text="🚀 Start Automatically with Windows (Always Ready in Background)",
+            command=self._on_startup_toggled,
+            font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
+            text_color=GOOGLE_COLORS["primary"],
+            fg_color=GOOGLE_COLORS["primary"],
+            border_color=GOOGLE_COLORS["outline"]
+        )
+        is_startup = StartupManager.is_startup_enabled()
+        if is_startup:
+            self.chk_startup.select()
+        else:
+            self.chk_startup.deselect()
+        self.chk_startup.pack(side="left")
 
         self.refresh_devices()
 
@@ -571,6 +607,7 @@ class VBridgeApp(ctk.CTk):
     def _on_update_code(self):
         new_code = self.entry_code.get().strip()
         self.audio_receiver.set_pairing_code(new_code)
+        self.config.set("pairing_code", new_code)
         self._generate_qr_code(self.selected_ip, self.audio_receiver.tcp_port, new_code)
 
     def refresh_devices(self, force_reinit=False):
@@ -616,15 +653,23 @@ class VBridgeApp(ctk.CTk):
         self.device_combo.set(selected_name)
         self._on_device_selected(selected_name)
 
+    def _on_startup_toggled(self):
+        enabled = (self.chk_startup.get() == 1)
+        StartupManager.set_startup_enabled(enabled)
+        self.config.set("launch_at_startup", enabled)
+        logger.info(f"Windows Autorun set to: {enabled}")
+
     def _on_anti_sleep_toggled(self):
         enabled = (self.chk_anti_sleep.get() == 1)
         self.audio_player.keep_alive_anti_sleep = enabled
+        self.config.set("keep_anti_sleep", enabled)
         logger.info(f"Bluetooth Anti-Sleep Keep-Alive set to: {enabled}")
 
     def _on_device_selected(self, choice):
         dev_id = self.device_map.get(choice)
         if dev_id is not None:
             self.audio_player.set_device(dev_id)
+            self.config.set("selected_device_name", choice)
             clean_name = choice.split('[')[0].strip()
             self.lbl_device_info.configure(text=f"Active Endpoint: Device #{dev_id} ({clean_name})")
             is_bt = "Bluetooth" in choice or "Earbuds" in choice or "Headset" in choice or "Air" in choice or "Airdopes" in choice
@@ -679,6 +724,7 @@ class VBridgeApp(ctk.CTk):
     def _on_volume_changed(self, val):
         vol = float(val)
         self.audio_player.set_volume(vol)
+        self.config.set("volume", vol)
         self.lbl_vol_val.configure(text=f"{int(vol * 100)}%")
 
     def _on_mute_toggled(self):

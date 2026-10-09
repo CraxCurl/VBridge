@@ -6,13 +6,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -23,6 +28,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -33,6 +39,19 @@ import com.journeyapps.barcodescanner.ScanOptions;
 public class MainActivity extends AppCompatActivity implements ControlClient.ConnectionListener {
 
     private static final int PERMISSION_REQ_CODE = 1001;
+    private static final String PREFS_NAME = "vbridge_prefs";
+    private static final String PREF_LAST_IP = "last_server_ip";
+    private static final String PREF_LAST_PORT = "last_server_port";
+    private static final String PREF_LAST_CODE = "last_pairing_code";
+    private static final String PREF_AUTO_CONNECT = "auto_connect_enabled";
+    private static final String PREF_LAST_DEVICE_NAME = "last_device_name";
+
+    // UI elements
+    private CardView cardRecentDevice;
+    private TextView tvRecentDeviceName;
+    private TextView tvRecentDeviceDetails;
+    private Button btnQuickConnect;
+    private CheckBox chkAutoConnect;
 
     private TextInputEditText etServerIp;
     private TextInputEditText etServerPort;
@@ -44,10 +63,11 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
     private RadioGroup rgAudioSource;
     private RadioButton rbInternalAudio;
     private RadioButton rbMicAudio;
-    private android.widget.CheckBox chkMutePhoneSpeaker;
+    private CheckBox chkMutePhoneSpeaker;
     private Button btnToggleStream;
     private ProgressBar pbAudioLevel;
 
+    private SharedPreferences prefs;
     private ControlClient controlClient;
     private AudioCaptureService audioService;
     private boolean isServiceBound = false;
@@ -109,13 +129,22 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
         initViews();
         checkPermissions();
         setupMediaProjectionLauncher();
         bindAudioService();
+        loadSavedConnections();
     }
 
     private void initViews() {
+        cardRecentDevice = findViewById(R.id.cardRecentDevice);
+        tvRecentDeviceName = findViewById(R.id.tvRecentDeviceName);
+        tvRecentDeviceDetails = findViewById(R.id.tvRecentDeviceDetails);
+        btnQuickConnect = findViewById(R.id.btnQuickConnect);
+        chkAutoConnect = findViewById(R.id.chkAutoConnect);
+
         etServerIp = findViewById(R.id.etServerIp);
         etServerPort = findViewById(R.id.etServerPort);
         etPairingCode = findViewById(R.id.etPairingCode);
@@ -133,6 +162,66 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
         btnScanQr.setOnClickListener(v -> checkCameraAndScan());
         btnConnect.setOnClickListener(v -> toggleConnection());
         btnToggleStream.setOnClickListener(v -> toggleStreaming());
+
+        if (btnQuickConnect != null) {
+            btnQuickConnect.setOnClickListener(v -> toggleConnection());
+        }
+
+        if (chkAutoConnect != null) {
+            chkAutoConnect.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                prefs.edit().putBoolean(PREF_AUTO_CONNECT, isChecked).apply();
+            });
+        }
+    }
+
+    private void loadSavedConnections() {
+        String savedIp = prefs.getString(PREF_LAST_IP, "");
+        int savedPort = prefs.getInt(PREF_LAST_PORT, 58000);
+        String savedCode = prefs.getString(PREF_LAST_CODE, "1234");
+        boolean autoConnect = prefs.getBoolean(PREF_AUTO_CONNECT, false);
+
+        if (!savedIp.isEmpty()) {
+            etServerIp.setText(savedIp);
+            etServerPort.setText(String.valueOf(savedPort));
+            etPairingCode.setText(savedCode);
+
+            if (cardRecentDevice != null) {
+                cardRecentDevice.setVisibility(View.VISIBLE);
+                tvRecentDeviceName.setText("💻 Windows Laptop");
+                tvRecentDeviceDetails.setText("IP: " + savedIp + " : " + savedPort + "  (Code: " + savedCode + ")");
+                btnQuickConnect.setText("⚡ Reconnect to " + savedIp);
+            }
+
+            if (chkAutoConnect != null) {
+                chkAutoConnect.setChecked(autoConnect);
+            }
+
+            // If auto-connect is enabled, automatically trigger connection
+            if (autoConnect) {
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (!isConnectedToLaptop) {
+                        Toast.makeText(this, "⚡ Auto-connecting to " + savedIp + "...", Toast.LENGTH_SHORT).show();
+                        toggleConnection();
+                    }
+                }, 600);
+            }
+        }
+    }
+
+    private void saveLastConnection(String ip, int port, String code) {
+        prefs.edit()
+                .putString(PREF_LAST_IP, ip)
+                .putInt(PREF_LAST_PORT, port)
+                .putString(PREF_LAST_CODE, code)
+                .apply();
+
+        runOnUiThread(() -> {
+            if (cardRecentDevice != null) {
+                cardRecentDevice.setVisibility(View.VISIBLE);
+                tvRecentDeviceDetails.setText("IP: " + ip + " : " + port + "  (Code: " + code + ")");
+                btnQuickConnect.setText("⚡ Reconnect to " + ip);
+            }
+        });
     }
 
     private void checkCameraAndScan() {
@@ -156,7 +245,6 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
 
     private void parseAndApplyQrCode(String qrData) {
         try {
-            // Expected format: vbridge://192.168.1.15:58000?code=1234
             if (qrData.startsWith("vbridge://")) {
                 Uri uri = Uri.parse(qrData);
                 String host = uri.getHost();
@@ -169,16 +257,14 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
                     etServerPort.setText(String.valueOf(port));
                     etPairingCode.setText(code);
 
-                    Toast.makeText(this, "QR Scanned: " + host + " (Code: " + code + ")", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "QR Scanned: " + host, Toast.LENGTH_SHORT).show();
 
-                    // Automatically trigger connection
                     if (!isConnectedToLaptop) {
                         toggleConnection();
                     }
                     return;
                 }
             } else if (qrData.contains(":") || qrData.matches("^\\d+\\.\\d+\\.\\d+\\.\\d+.*")) {
-                // Fallback for raw IP or IP:Port format
                 String[] parts = qrData.replace("http://", "").replace("https://", "").split(":");
                 etServerIp.setText(parts[0].trim());
                 if (parts.length > 1) {
@@ -252,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
             tvConnectionStatus.setText("🟡 Connecting...");
             tvConnectionStatus.setTextColor(ContextCompat.getColor(this, R.color.primary));
             btnConnect.setEnabled(false);
+            if (btnQuickConnect != null) btnQuickConnect.setEnabled(false);
             if (btnScanQr != null) btnScanQr.setEnabled(false);
 
             controlClient = new ControlClient(ip, port, code, this);
@@ -330,6 +417,7 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
     private void setConnectionUiState(boolean connected) {
         isConnectedToLaptop = connected;
         btnConnect.setEnabled(true);
+        if (btnQuickConnect != null) btnQuickConnect.setEnabled(!connected);
         if (btnScanQr != null) btnScanQr.setEnabled(!connected);
 
         if (connected) {
@@ -379,6 +467,12 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
             currentSessionId = sessionId;
             currentUdpPort = udpPort;
             setConnectionUiState(true);
+
+            String ip = etServerIp.getText().toString().trim();
+            int port = Integer.parseInt(etServerPort.getText().toString().trim());
+            String code = etPairingCode.getText().toString().trim();
+            saveLastConnection(ip, port, code);
+
             Toast.makeText(MainActivity.this, "Paired with Windows Laptop!", Toast.LENGTH_SHORT).show();
         });
     }
@@ -387,7 +481,6 @@ public class MainActivity extends AppCompatActivity implements ControlClient.Con
     public void onDisconnected(String reason) {
         runOnUiThread(() -> {
             setConnectionUiState(false);
-            // Note: Keep audio streaming alive across transient TCP reconnections
         });
     }
 
