@@ -267,6 +267,17 @@ class VBridgeApp(ctk.CTk):
         )
         btn_refresh.pack(side="right")
 
+        # Helpful mixing tip banner
+        tip_frame = ctk.CTkFrame(card, fg_color=GOOGLE_COLORS["surface_high"], corner_radius=10, border_width=1, border_color=GOOGLE_COLORS["outline"])
+        tip_frame.pack(fill="x", padx=18, pady=(0, 10))
+        ctk.CTkLabel(
+            tip_frame,
+            text="💡 Tip: To hear Laptop videos (YouTube/Games) and Phone audio simultaneously in your earbuds,\nclick the Speaker icon on your Windows Taskbar (bottom-right) and set output to your Earbuds.",
+            font=ctk.CTkFont(family="Segoe UI", size=11),
+            text_color=GOOGLE_COLORS["primary"],
+            justify="left"
+        ).pack(anchor="w", padx=12, pady=8)
+
         # Anti-sleep & active endpoint info row
         opt_row = ctk.CTkFrame(card, fg_color="transparent")
         opt_row.pack(fill="x", padx=18, pady=(0, 12))
