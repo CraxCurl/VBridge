@@ -5,14 +5,17 @@ __pycache__/
 *.spec
 dist/
 build/
+windows/dist/
+windows/build/
 .env
 venv/
 env/
 
 # Android / Gradle
 .gradle/
+**/.gradle/
+**/build/
 build/
-*/build/
 *.apk
 *.aab
 local.properties
@@ -20,3 +23,4 @@ local.properties
 *.iml
 .DS_Store
 *.lock
+

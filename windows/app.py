@@ -19,6 +19,13 @@ except ImportError:
     from windows.startup_manager import StartupManager
     from windows.config_manager import ConfigManager
 
+try:
+    import pystray
+    from pystray import MenuItem as TrayItem
+    HAS_PYSTRAY = True
+except ImportError:
+    HAS_PYSTRAY = False
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -64,6 +71,23 @@ class VBridgeApp(ctk.CTk):
         self.minsize(720, 780)
         self.configure(fg_color=GOOGLE_COLORS["bg_main"])
 
+        # Window Icon
+        self.script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.ico_path = os.path.join(self.script_dir, "assets", "app_icon.ico")
+        self.png_path = os.path.join(self.script_dir, "assets", "app_icon.png")
+        if not os.path.exists(self.ico_path):
+            try:
+                from generate_icon import generate_app_icon
+                generate_app_icon(self.script_dir)
+            except Exception:
+                pass
+
+        if os.path.exists(self.ico_path):
+            try:
+                self.iconbitmap(self.ico_path)
+            except Exception as e:
+                logger.debug(f"Could not set iconbitmap: {e}")
+
         # Audio engine and Receiver instances
         saved_vol = self.config.get("volume", 1.0)
         self.audio_player = AudioPlayer(sample_rate=48000, channels=2, buffer_size=480)
@@ -83,6 +107,10 @@ class VBridgeApp(ctk.CTk):
         self.is_streaming_active = False
 
         self._build_ui()
+
+        # System tray icon
+        self.tray_icon = None
+        self._init_tray()
 
         # Start receiver servers in background
         self.audio_receiver.start()
@@ -123,8 +151,27 @@ class VBridgeApp(ctk.CTk):
         )
         lbl_sub.pack(anchor="w", pady=(2, 0))
 
-        # Right-side live badge
-        self.badge_hub = ctk.CTkFrame(bar_inner, corner_radius=20, fg_color=GOOGLE_COLORS["surface_highest"], border_width=1, border_color=GOOGLE_COLORS["outline"])
+        # Right-side action controls
+        controls_right = ctk.CTkFrame(bar_inner, fg_color="transparent")
+        controls_right.pack(side="right")
+
+        # Minimize to Tray Button
+        self.btn_tray = ctk.CTkButton(
+            controls_right,
+            text="🗕 Tray",
+            width=70,
+            height=32,
+            corner_radius=16,
+            fg_color=GOOGLE_COLORS["surface_highest"],
+            hover_color=GOOGLE_COLORS["outline"],
+            text_color=GOOGLE_COLORS["text_high"],
+            font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
+            command=self._minimize_to_tray
+        )
+        self.btn_tray.pack(side="right", padx=(6, 0))
+
+        # Live Hub Status Badge
+        self.badge_hub = ctk.CTkFrame(controls_right, corner_radius=20, fg_color=GOOGLE_COLORS["surface_highest"], border_width=1, border_color=GOOGLE_COLORS["outline"])
         self.badge_hub.pack(side="right", padx=4)
 
         self.lbl_hub_status = ctk.CTkLabel(
@@ -788,17 +835,77 @@ class VBridgeApp(ctk.CTk):
 
         self.after(40, self._update_metrics_loop)
 
+    def _init_tray(self):
+        if not HAS_PYSTRAY:
+            logger.info("pystray not installed; skipping system tray icon.")
+            return
+
+        try:
+            if os.path.exists(self.png_path):
+                tray_img = Image.open(self.png_path)
+            elif os.path.exists(self.ico_path):
+                tray_img = Image.open(self.ico_path)
+            else:
+                tray_img = Image.new("RGBA", (64, 64), (168, 199, 250, 255))
+
+            menu = pystray.Menu(
+                TrayItem("🎧 Open VBridge", self._show_window, default=True),
+                TrayItem("⚡ Start/Stop Stream", lambda icon, item: self.after(0, self._toggle_stream)),
+                pystray.Menu.SEPARATOR,
+                TrayItem("❌ Exit VBridge", self._quit_app)
+            )
+
+            self.tray_icon = pystray.Icon("VBridge", tray_img, "VBridge — Audio Relay", menu=menu)
+            tray_thread = threading.Thread(target=self.tray_icon.run, daemon=True, name="VBridge-TrayThread")
+            tray_thread.start()
+            logger.info("Windows System Tray icon initialized successfully.")
+        except Exception as e:
+            logger.warning(f"Could not initialize system tray: {e}")
+
+    def _minimize_to_tray(self):
+        logger.info("Minimizing VBridge to Windows System Tray...")
+        self.withdraw()
+        if self.tray_icon is not None:
+            try:
+                self.tray_icon.notify("VBridge is running in the system tray. Click to reopen.", "VBridge Audio Relay")
+            except Exception:
+                pass
+
+    def _show_window(self, icon=None, item=None):
+        self.after(0, self._restore_window)
+
+    def _restore_window(self):
+        self.deiconify()
+        self.state("normal")
+        self.lift()
+        self.focus_force()
+
     def _on_close(self):
-        logger.info("Shutting down VBridge Application...")
+        # When user clicks the 'X' button, minimize to system tray if available
+        if self.tray_icon is not None:
+            self._minimize_to_tray()
+        else:
+            self._quit_app()
+
+    def _quit_app(self, icon=None, item=None):
+        logger.info("Exiting VBridge Application...")
+        try:
+            if self.tray_icon is not None:
+                self.tray_icon.stop()
+        except Exception:
+            pass
+
         try:
             self.audio_receiver.stop()
             self.audio_player.stop()
         except Exception:
             pass
-        self.destroy()
+
+        self.after(0, self.destroy)
         sys.exit(0)
 
 
 if __name__ == "__main__":
     app = VBridgeApp()
     app.mainloop()
+
