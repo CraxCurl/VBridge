@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#A8C7FA</color>
+    <color name="background">#131314</color>
+    <color name="google_amber">#FDE293</color>
+    <color name="google_green">#6DD58C</color>
+    <color name="google_green_on">#0A3818</color>
+    <color name="google_red">#F28B82</color>
+    <color name="google_red_on">#601410</color>
+    <color name="on_primary">#041E49</color>
+    <color name="outline_border">#444746</color>
+    <color name="primary">#A8C7FA</color>
+    <color name="primary_dark">#131314</color>
+    <color name="status_gray">#8E918F</color>
+    <color name="status_green">#6DD58C</color>
+    <color name="status_red">#F28B82</color>
+    <color name="surface_container">#1E1F20</color>
+    <color name="surface_container_high">#28292A</color>
+    <color name="surface_container_highest">#333537</color>
+    <color name="text_high">#E3E3E3</color>
+    <color name="text_medium">#C4C7C5</color>
+    <color name="text_muted">#8E918F</color>
+    <string name="app_name">VBridge</string>
+    <string name="notification_channel_name">VBridge Audio Stream Service</string>
+    <string name="notification_desc">Relaying system audio to Windows laptop...</string>
+    <string name="notification_title">VBridge Audio Stream Active</string>
+    <style name="Theme.VBridge" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/primary_dark</item>
+    </style>
+</resources>

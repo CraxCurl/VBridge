@@ -1,0 +1,234 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.vbridge.audiobridge"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="29"
+9        android:targetSdkVersion="34" />
+10
+11    <!-- Network permissions for streaming audio over Wi-Fi -->
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:6:5-67
+12-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:6:22-64
+13    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+13-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:7:5-79
+13-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:7:22-76
+14    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+14-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:8:5-76
+14-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:8:22-73
+15
+16    <!-- Audio and foreground service permissions -->
+17    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+17-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:11:5-71
+17-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:11:22-68
+18    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+18-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:12:5-77
+18-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:12:22-74
+19    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+19-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:13:5-94
+19-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:13:22-91
+20    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+20-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:14:5-77
+20-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:14:22-74
+21
+22    <!-- Camera permission for QR Code scanning -->
+23    <uses-permission android:name="android.permission.CAMERA" />
+23-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:17:5-65
+23-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:17:22-62
+24
+25    <uses-feature
+25-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:18:5-85
+26        android:name="android.hardware.camera"
+26-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:18:19-57
+27        android:required="false" />
+27-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:18:58-82
+28    <uses-feature
+28-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:19:5-95
+29        android:name="android.hardware.camera.autofocus"
+29-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:19:19-67
+30        android:required="false" />
+30-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:19:68-92
+31    <uses-feature
+31-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:28:5-30:36
+32        android:name="android.hardware.camera.front"
+32-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:29:9-53
+33        android:required="false" />
+33-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:30:9-33
+34    <uses-feature
+34-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:36:5-38:36
+35        android:name="android.hardware.camera.flash"
+35-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:37:9-53
+36        android:required="false" />
+36-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:38:9-33
+37    <uses-feature
+37-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:39:5-41:36
+38        android:name="android.hardware.screen.landscape"
+38-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:40:9-57
+39        android:required="false" />
+39-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:41:9-33
+40    <uses-feature
+40-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:42:5-44:36
+41        android:name="android.hardware.wifi"
+41-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:43:9-45
+42        android:required="false" />
+42-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:44:9-33
+43
+44    <permission
+44-->[androidx.core:core:1.9.0] C:\Users\vinay\.gradle\caches\transforms-3\75919e89ab9acfe92b320b18b5eba894\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+45        android:name="com.vbridge.audiobridge.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+45-->[androidx.core:core:1.9.0] C:\Users\vinay\.gradle\caches\transforms-3\75919e89ab9acfe92b320b18b5eba894\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+46        android:protectionLevel="signature" />
+46-->[androidx.core:core:1.9.0] C:\Users\vinay\.gradle\caches\transforms-3\75919e89ab9acfe92b320b18b5eba894\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+47
+48    <uses-permission android:name="com.vbridge.audiobridge.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+48-->[androidx.core:core:1.9.0] C:\Users\vinay\.gradle\caches\transforms-3\75919e89ab9acfe92b320b18b5eba894\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+48-->[androidx.core:core:1.9.0] C:\Users\vinay\.gradle\caches\transforms-3\75919e89ab9acfe92b320b18b5eba894\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+49
+50    <application
+50-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:21:5-53:19
+51        android:allowBackup="true"
+51-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:22:9-35
+52        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+52-->[androidx.core:core:1.9.0] C:\Users\vinay\.gradle\caches\transforms-3\75919e89ab9acfe92b320b18b5eba894\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+53        android:debuggable="true"
+54        android:extractNativeLibs="false"
+55        android:icon="@mipmap/ic_launcher"
+55-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:23:9-43
+56        android:label="@string/app_name"
+56-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:24:9-41
+57        android:roundIcon="@mipmap/ic_launcher_round"
+57-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:25:9-54
+58        android:supportsRtl="true"
+58-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:26:9-35
+59        android:testOnly="true"
+60        android:theme="@style/Theme.VBridge"
+60-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:27:9-45
+61        android:usesCleartextTraffic="true" >
+61-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:28:9-44
+62        <activity
+62-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:30:9-38:20
+63            android:name="com.vbridge.audiobridge.MainActivity"
+63-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:31:13-41
+64            android:exported="true"
+64-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:32:13-36
+65            android:windowSoftInputMode="adjustResize" >
+65-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:33:13-55
+66            <intent-filter>
+66-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:34:13-37:29
+67                <action android:name="android.intent.action.MAIN" />
+67-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:35:17-69
+67-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:35:25-66
+68
+69                <category android:name="android.intent.category.LAUNCHER" />
+69-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:36:17-77
+69-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:36:27-74
+70            </intent-filter>
+71        </activity>
+72
+73        <!-- Custom Paytm/GPay Style QR Scanner Activity -->
+74        <activity
+74-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:41:9-44:52
+75            android:name="com.vbridge.audiobridge.CustomScannerActivity"
+75-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:42:13-50
+76            android:screenOrientation="fullSensor"
+76-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:43:13-51
+77            android:theme="@style/Theme.VBridge" />
+77-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:44:13-49
+78
+79        <!-- Foreground Service for background audio capture and UDP streaming -->
+80        <service
+80-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:47:9-51:63
+81            android:name="com.vbridge.audiobridge.AudioCaptureService"
+81-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:48:13-48
+82            android:enabled="true"
+82-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:49:13-35
+83            android:exported="false"
+83-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:50:13-37
+84            android:foregroundServiceType="mediaProjection" />
+84-->C:\Users\vinay\Desktop\git-reps\VBridge\android\app\src\main\AndroidManifest.xml:51:13-60
+85
+86        <activity
+86-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:47:9-53:63
+87            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+87-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:48:13-74
+88            android:clearTaskOnLaunch="true"
+88-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:49:13-45
+89            android:screenOrientation="sensorLandscape"
+89-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:50:13-56
+90            android:stateNotNeeded="true"
+90-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:51:13-42
+91            android:theme="@style/zxing_CaptureTheme"
+91-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:52:13-54
+92            android:windowSoftInputMode="stateAlwaysHidden" />
+92-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\vinay\.gradle\caches\transforms-3\21e415e6faa3be34738048e71349b8b6\transformed\jetified-zxing-android-embedded-4.3.0\AndroidManifest.xml:53:13-60
+93
+94        <provider
+94-->[androidx.emoji2:emoji2:1.2.0] C:\Users\vinay\.gradle\caches\transforms-3\4381fccdde393d19d04161b40313d198\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+95            android:name="androidx.startup.InitializationProvider"
+95-->[androidx.emoji2:emoji2:1.2.0] C:\Users\vinay\.gradle\caches\transforms-3\4381fccdde393d19d04161b40313d198\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+96            android:authorities="com.vbridge.audiobridge.androidx-startup"
+96-->[androidx.emoji2:emoji2:1.2.0] C:\Users\vinay\.gradle\caches\transforms-3\4381fccdde393d19d04161b40313d198\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+97            android:exported="false" >
+97-->[androidx.emoji2:emoji2:1.2.0] C:\Users\vinay\.gradle\caches\transforms-3\4381fccdde393d19d04161b40313d198\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+98            <meta-data
+98-->[androidx.emoji2:emoji2:1.2.0] C:\Users\vinay\.gradle\caches\transforms-3\4381fccdde393d19d04161b40313d198\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+99                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+99-->[androidx.emoji2:emoji2:1.2.0] C:\Users\vinay\.gradle\caches\transforms-3\4381fccdde393d19d04161b40313d198\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+100                android:value="androidx.startup" />
+100-->[androidx.emoji2:emoji2:1.2.0] C:\Users\vinay\.gradle\caches\transforms-3\4381fccdde393d19d04161b40313d198\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+101            <meta-data
+101-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\vinay\.gradle\caches\transforms-3\818eda85d3b5ca5901b62e2194b4fd5f\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+102                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+102-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\vinay\.gradle\caches\transforms-3\818eda85d3b5ca5901b62e2194b4fd5f\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+103                android:value="androidx.startup" />
+103-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\vinay\.gradle\caches\transforms-3\818eda85d3b5ca5901b62e2194b4fd5f\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+104            <meta-data
+104-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+105                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+105-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+106                android:value="androidx.startup" />
+106-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+107        </provider>
+108
+109        <receiver
+109-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+110            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+110-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+111            android:directBootAware="false"
+111-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+112            android:enabled="true"
+112-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+113            android:exported="true"
+113-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+114            android:permission="android.permission.DUMP" >
+114-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+115            <intent-filter>
+115-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+116                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+116-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+116-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+117            </intent-filter>
+118            <intent-filter>
+118-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+119                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+119-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+119-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+120            </intent-filter>
+121            <intent-filter>
+121-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+122                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+122-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+122-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+123            </intent-filter>
+124            <intent-filter>
+124-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+125                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+125-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+125-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\vinay\.gradle\caches\transforms-3\2d7e59e65c0683989da89981a01e18f0\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+126            </intent-filter>
+127        </receiver>
+128    </application>
+129
+130</manifest>
