@@ -19,28 +19,7 @@ android {
     signingConfigs {
         release {
             def keystorePath = System.getenv("KEYSTORE_PATH") ?: (System.getProperty("user.home") + "/.android/debug.keystore")
-            def keystoreFile = file(keystorePath)
-
-            if (!keystoreFile.exists() && keystorePath.endsWith("debug.keystore")) {
-                keystoreFile.parentFile.mkdirs()
-                try {
-                    exec {
-                        commandLine 'keytool', '-genkeypair', '-v',
-                            '-keystore', keystoreFile.absolutePath,
-                            '-storepass', 'android',
-                            '-alias', 'androiddebugkey',
-                            '-keypass', 'android',
-                            '-keyalg', 'RSA',
-                            '-keysize', '2048',
-                            '-validity', '10000',
-                            '-dname', 'CN=Android Debug,O=Android,C=US'
-                    }
-                } catch (Exception e) {
-                    println "Warning: Could not auto-generate fallback debug keystore: " + e.message
-                }
-            }
-
-            storeFile keystoreFile
+            storeFile file(keystorePath)
             storePassword System.getenv("KEYSTORE_PASSWORD") ?: "android"
             keyAlias System.getenv("KEY_ALIAS") ?: "androiddebugkey"
             keyPassword System.getenv("KEY_PASSWORD") ?: "android"
