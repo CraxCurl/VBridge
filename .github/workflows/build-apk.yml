@@ -7,9 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: 'Release tag (e.g. v1.0.0)'
+        description: 'Release tag (e.g. v1.0.1)'
         required: true
-        default: 'v1.0.0'
+        default: 'v1.0.1'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -36,6 +39,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Generate fallback keystore
+        run: |
+          mkdir -p ~/.android
+          if [ ! -f ~/.android/debug.keystore ]; then
+            keytool -genkeypair -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
 
@@ -43,27 +53,16 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease
 
-      - name: Sign APK
-        uses: r0adkll/sign-android-release@v1
-        id: sign_app
-        with:
-          releaseDirectory: android/app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-        env:
-          BUILD_TOOLS_VERSION: "34.0.0"
-
-      - name: Rename signed APK
+      - name: Prepare Release APK asset
         run: |
-          cp ${{ steps.sign_app.outputs.signedReleaseFile }} android/app/build/outputs/apk/release/VBridge-signed.apk
+          mkdir -p build-output
+          cp android/app/build/outputs/apk/release/app-release.apk build-output/VBridge.apk
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: VBridge-APK
-          path: android/app/build/outputs/apk/release/VBridge-signed.apk
+          path: build-output/VBridge.apk
 
       - name: Determine tag name
         id: tag
@@ -83,17 +82,14 @@ jobs:
             ## 🎧 VBridge ${{ steps.tag.outputs.TAG_NAME }}
 
             ### 📱 Android APK
-            Download **VBridge-signed.apk** below and install it on your Android phone (Android 10+).
+            Download **VBridge.apk** below and install it on your Android phone (Android 10+).
 
             ### Installation
-            1. Download `VBridge-signed.apk` from the **Assets** section below.
+            1. Download `VBridge.apk` from the **Assets** section below.
             2. Open the downloaded file on your Android phone.
             3. If prompted, allow installation from unknown sources.
             4. Install and open VBridge!
-
-            ### ⚠️ Note
-            If your browser downloads it as a `.zip` file, rename it to `.apk` before installing.
-          files: android/app/build/outputs/apk/release/VBridge-signed.apk
+          files: build-output/VBridge.apk
           draft: false
           prerelease: false
         env:

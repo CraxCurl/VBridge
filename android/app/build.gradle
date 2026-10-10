@@ -18,12 +18,13 @@ android {
 
     signingConfigs {
         release {
-            // Use debug keystore as fallback so the APK is always signed and installable.
-            // In CI, the GitHub Actions sign-android-release step handles proper signing.
-            storeFile file(System.getProperty("user.home") + "/.android/debug.keystore")
-            storePassword "android"
-            keyAlias "androiddebugkey"
-            keyPassword "android"
+            def keystoreFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
+            if (keystoreFile.exists()) {
+                storeFile keystoreFile
+                storePassword "android"
+                keyAlias "androiddebugkey"
+                keyPassword "android"
+            }
         }
     }
 
