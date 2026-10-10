@@ -1,0 +1,6 @@
+# Set default behavior to automatic text conversion
+* text=auto
+
+# Explicitly declare files that must always have LF line endings
+android/gradlew text eol=lf
+*.sh text eol=lf
